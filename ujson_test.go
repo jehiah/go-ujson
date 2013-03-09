@@ -21,7 +21,7 @@ var unmarshalTests = []unmarshalTest{
 	{`true`, new(bool), true, nil},
 	{`1`, new(int), 1, nil},
 	{`1.2`, new(float64), 1.2, nil},
-	{`-5`, new(int16), int16(-5), nil},
+	{`-5`, new(int32), int32(-5), nil},
 	{`"a\u1234"`, new(string), "a\u1234", nil},
 	{`"http:\/\/"`, new(string), "http://", nil},
 	{`"g-clef: \uD834\uDD1E"`, new(string), "g-clef: \U0001D11E", nil},
@@ -79,11 +79,11 @@ func TestUnmarshal(t *testing.T) {
 		var vv interface{}
 		var err error
 		if vv, err = Unmarshal([]byte(in)); !reflect.DeepEqual(err, tt.err) {
-			t.Errorf("#%d: %v want %v", i, err, tt.err)
+			t.Errorf("#%d: have error %v want %v", i, err, tt.err)
 			continue
 		}
 		if !reflect.DeepEqual(vv, tt.out) {
-			t.Errorf("#%d: mismatch\nhave: %#+v\nwant: %#+v", i, vv, tt.out)
+			t.Errorf("#%d: mismatch %T and %T\nhave: %#+v\nwant: %#+v", i, vv, tt.out, vv, tt.out)
 			data, _ := json.Marshal(vv)
 			println(string(data))
 			data, _ = json.Marshal(tt.out)
