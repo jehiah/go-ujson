@@ -158,13 +158,31 @@ func Version() string {
 	return "0.1.0"
 }
 
-func Unmarshal(d []byte) (*Ujson, error) {
+// A SyntaxError is a description of a JSON syntax error.
+type SyntaxError struct {
+	msg    string // description of error
+	Offset int64  // error occurred after reading Offset bytes
+}
+
+func (e *SyntaxError) Error() string { return e.msg }
+
+
+func UnmarshalUjson(d []byte) (*Ujson, error) {
 	cData := (*C.char)(unsafe.Pointer(&d[0]))
 	ret := C.decodeString(cData, C.size_t(len(d)))
 	if ret == nil {
-		return nil, errors.New("failed to decode JSON")
+		return nil, &SyntaxError{"failed to decode JSON", 0}
 	}
 	return &Ujson{ret}, nil
+}
+
+func Unmarshal(d []byte) (interface{}, error) {
+	cData := (*C.char)(unsafe.Pointer(&d[0]))
+	ret := C.decodeString(cData, C.size_t(len(d)))
+	if ret == nil {
+		return nil, &SyntaxError{"failed to decode JSON", 0}
+	}
+	return *(*interface{})(ret), nil
 }
 
 //export go_objectAddKey
